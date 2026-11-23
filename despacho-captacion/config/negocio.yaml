@@ -15,7 +15,7 @@ disponibilidad:
   miercoles: { inicio: "19:15", fin: "21:15" }
   jueves:    { inicio: "18:00", fin: "21:00" }
   horas_semanales: 10
-  festivos: nacionales_y_autonomicos   # PENDIENTE: confirmar comunidad autónoma
+  festivos: la_rioja   # supabase/migrations/..._festivos_la_rioja.sql · PENDIENTE: municipio (festivos locales)
 
 consulta_inicial:
   duracion_min: 30
