@@ -1,5 +1,5 @@
 # Configuración de negocio: fuente única de verdad para agenda, scoring y web.
-# Los valores marcados PENDIENTE son supuestos provisionales a confirmar (ver docs/03).
+# Configuración cerrada el 23-11-2026. Los festivos de 2027 marcados "(verificar)" deben contrastarse con el BOR.
 
 zona_horaria: Europe/Madrid
 
@@ -15,7 +15,7 @@ disponibilidad:
   miercoles: { inicio: "19:15", fin: "21:15" }
   jueves:    { inicio: "18:00", fin: "21:00" }
   horas_semanales: 10
-  festivos: la_rioja   # supabase/migrations/..._festivos_la_rioja.sql · PENDIENTE: municipio (festivos locales)
+  festivos: la_rioja_y_logrono   # migraciones 000003 y 000004
 
 consulta_inicial:
   duracion_min: 30
