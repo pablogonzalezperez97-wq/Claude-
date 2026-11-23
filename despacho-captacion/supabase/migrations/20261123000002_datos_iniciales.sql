@@ -3,6 +3,8 @@
 -- (espejo de config/negocio.yaml, validado por el abogado el 23-11-2026)
 -- =====================================================================
 
+set local search_path = despacho;
+
 insert into parametros (clave, valor, descripcion) values
   ('consulta.duracion_min',            '[30]',   'Duración de la consulta inicial'),
   ('consulta.margen_min',              '[15]',   'Margen entre citas'),

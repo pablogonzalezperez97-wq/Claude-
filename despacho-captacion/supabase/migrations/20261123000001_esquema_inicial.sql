@@ -5,9 +5,12 @@
 -- autenticado y figura en la tabla `abogados`. anon no lee datos personales.
 -- =====================================================================
 
+-- Todo el despacho vive en su propio esquema `despacho`, aislado de `public`.
 create schema if not exists extensions;
 create extension if not exists pg_trgm   with schema extensions;
 create extension if not exists btree_gist with schema extensions;
+create schema if not exists despacho;
+set local search_path = despacho, extensions, public;
 
 -- ---------------------------------------------------------------------
 -- Tipos
@@ -27,7 +30,7 @@ create type modalidad_cita   as enum ('videollamada', 'presencial');
 -- Normaliza nombres para el cruce de conflictos: minúsculas, sin tildes,
 -- sin formas societarias ni signos. IMMUTABLE para poder indexarla.
 create or replace function normalizar_nombre(t text)
-returns text language sql immutable parallel safe as $$
+returns text language sql immutable parallel safe set search_path = pg_catalog as $$
   select btrim(regexp_replace(
            regexp_replace(
              translate(lower(coalesce(t, '')), 'áàäâéèëêíìïîóòöôúùüûñç', 'aaaaeeeeiiiioooouuuunc'),
@@ -36,12 +39,12 @@ returns text language sql immutable parallel safe as $$
 $$;
 
 create or replace function normalizar_nif(t text)
-returns text language sql immutable parallel safe as $$
+returns text language sql immutable parallel safe set search_path = pg_catalog as $$
   select nullif(upper(regexp_replace(coalesce(t, ''), '[^A-Za-z0-9]', '', 'g')), '');
 $$;
 
 create or replace function tocar_actualizado()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = pg_catalog as $$
 begin new.actualizado_en := now(); return new; end $$;
 
 -- ---------------------------------------------------------------------
@@ -89,8 +92,8 @@ create table abogados (
 );
 
 create or replace function es_abogado()
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.abogados where user_id = auth.uid());
+returns boolean language sql stable security definer set search_path = despacho as $$
+  select exists (select 1 from despacho.abogados where user_id = auth.uid());
 $$;
 
 -- ---------------------------------------------------------------------
@@ -109,7 +112,7 @@ create table clientes (
   actualizado_en timestamptz not null default now()
 );
 create unique index clientes_nif_uq on clientes (nif_norm) where nif_norm is not null;
-create index clientes_nombre_trgm on clientes using gin (nombre_norm extensions.gin_trgm_ops);
+create index clientes_nombre_trgm on clientes using gin (nombre_norm gin_trgm_ops);
 create trigger clientes_act before update on clientes for each row execute function tocar_actualizado();
 
 create table leads (
@@ -144,7 +147,7 @@ create table contrapartes (
 );
 create index contrapartes_lead_idx on contrapartes (lead_id);
 create index contrapartes_nif_idx on contrapartes (nif_norm);
-create index contrapartes_nombre_trgm on contrapartes using gin (nombre_norm extensions.gin_trgm_ops);
+create index contrapartes_nombre_trgm on contrapartes using gin (nombre_norm gin_trgm_ops);
 
 create table conflictos (
   id uuid primary key default gen_random_uuid(),
@@ -263,7 +266,7 @@ create index interacciones_sesion_idx on interacciones_ia (sesion);
 
 -- Días hábiles (lun-vie, sin festivos) entre hoy (excluido) y la fecha (incluida).
 create or replace function dias_habiles_hasta(p_fecha date, p_desde date default current_date)
-returns integer language sql stable as $$
+returns integer language sql stable set search_path = despacho, pg_catalog as $$
   select count(*)::int
   from generate_series(p_desde + 1, p_fecha, interval '1 day') d
   where extract(isodow from d) < 6
@@ -271,7 +274,7 @@ returns integer language sql stable as $$
 $$;
 
 create or replace function detectar_conflictos(p_lead uuid)
-returns integer language plpgsql security definer set search_path = public, extensions as $$
+returns integer language plpgsql security definer set search_path = despacho, extensions, public as $$
 declare
   v_umbral real := coalesce((select (valor->>0)::real from parametros where clave = 'conflictos.umbral_similitud'), 0.55);
   v_cliente clientes%rowtype;
@@ -323,7 +326,7 @@ begin
 end $$;
 
 create or replace function calcular_puntuacion(p_lead uuid)
-returns smallint language sql stable as $$
+returns smallint language sql stable set search_path = despacho, pg_catalog as $$
   select (
       coalesce(m.puntos, 0)
     + case when l.fecha_limite is not null and l.fecha_limite >= current_date then 20 else 0 end
@@ -339,7 +342,7 @@ $$;
 -- Triaje completo: derivación → conflictos → puntuación → estado.
 create or replace function evaluar_lead(p_lead uuid)
 returns table (estado estado_lead, puntuacion smallint, conflictos_pendientes integer, alerta_plazo boolean)
-language plpgsql security definer set search_path = public, extensions as $$
+language plpgsql security definer set search_path = despacho, extensions, public as $$
 declare
   v_nivel nivel_materia;
   v_lim date;
@@ -395,6 +398,14 @@ begin
     execute format('create policy abogado_todo on %I for all to authenticated using (es_abogado()) with check (es_abogado())', t);
   end loop;
 end $$;
+
+-- Permisos de esquema (Supabase solo los concede por defecto en `public`).
+grant usage on schema despacho to anon, authenticated, service_role;
+grant all on all tables in schema despacho to service_role;
+grant all on all sequences in schema despacho to service_role;
+grant select, insert, update, delete on all tables in schema despacho to authenticated;  -- RLS filtra
+grant usage on all sequences in schema despacho to authenticated;
+grant select on despacho.materias, despacho.disponibilidad, despacho.festivos, despacho.faq to anon;  -- RLS filtra
 
 -- Lectura pública mínima, sin datos personales: catálogo, franjas, festivos y FAQ validadas.
 create policy publico_lee_materias       on materias       for select to anon using (activa);

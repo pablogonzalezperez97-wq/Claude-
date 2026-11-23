@@ -6,6 +6,8 @@
 -- Festivos LOCALES: pendientes de saber el municipio del despacho.
 -- =====================================================================
 
+set local search_path = despacho;
+
 insert into festivos (fecha, descripcion) values
   ('2026-01-01', 'Año Nuevo'),
   ('2026-01-06', 'Epifanía del Señor'),
