@@ -31,7 +31,11 @@
       <button class="secundario" id="recargar">Actualizar</button>
       <button class="secundario" id="salir">Cerrar sesión</button>
     </div>
+    <h2>Solicitudes pendientes</h2>
     <div id="lista" aria-live="polite"></div>
+    <h2 style="margin-top:32px">Derivaciones por reenviar</h2>
+    <p class="meta">Agrupadas por área para que puedas enviar varios casos al mismo compañero. Copia el resumen, reenvíalo y márcalo como reenviado.</p>
+    <div id="derivaciones" aria-live="polite"></div>
   </section>
 </main>
 
@@ -73,6 +77,7 @@
     const t = el("article", { className: "tarjeta" },
       chips,
       el("h2", { textContent: `${l.cliente.nombre} · ${l.materia?.nombre ?? "Materia sin clasificar"}` }),
+      el("p", { className: "meta", textContent: `Responder antes del ${fmtFecha(l.responder_antes)}` }),
       el("p", { className: "meta", textContent:
         [l.cliente.tipo === "juridica" ? "Empresa" : "Particular", l.cliente.nif, l.contacto.email, l.contacto.telefono,
          l.cuantia_eur != null ? fmtEur(l.cuantia_eur) : null, l.fecha_limite ? `Vence ${fmtFecha(l.fecha_limite)}` : null,
@@ -109,12 +114,53 @@
     catch (e) { alert(MENSAJES[e.message] || `Error: ${e.message}`); }
   }
 
+  const AREAS = { penal: "Penal", familia: "Familia", civil: "Civil", mercantil: "Mercantil", tributario: "Tributario", administrativo: "Administrativo" };
+
+  function resumenCasos(casos) {
+    return casos.map((c, i) => [
+      `${i + 1}. ${c.materia ?? "Asunto"} — ${c.cliente}`,
+      `   Contacto: ${[c.email, c.telefono].filter(Boolean).join(" · ")}`,
+      c.fecha_limite ? `   Plazo: ${fmtFecha(c.fecha_limite)}` : null,
+      c.contrapartes.length ? `   Parte contraria: ${c.contrapartes.join(", ")}` : null,
+      `   Relato: ${c.descripcion ?? ""}`,
+    ].filter(Boolean).join("\n")).join("\n\n");
+  }
+
+  function grupoDerivacion(g) {
+    const seleccion = new Set(g.casos.map((c) => c.id));
+    const caja = el("article", { className: "tarjeta" }, el("h2", { textContent: `${AREAS[g.area] ?? g.area} · ${g.casos.length} caso(s)` }));
+    for (const c of g.casos) {
+      const chk = el("input", { type: "checkbox", checked: true });
+      chk.addEventListener("change", () => chk.checked ? seleccion.add(c.id) : seleccion.delete(c.id));
+      caja.append(el("label", { className: "check" }, chk,
+        el("span", {}, el("strong", { textContent: `${c.materia ?? "Asunto"} — ${c.cliente}` }),
+          el("span", { className: "meta", textContent: ` · ${[c.email, c.telefono].filter(Boolean).join(" · ")} · Recibida ${fmtFecha(c.creado_en)}` }),
+          el("div", { className: "relato", textContent: c.descripcion ?? "" }))));
+    }
+    caja.append(el("div", { className: "acciones" },
+      boton("Copiar resumen", "secundario", async () => {
+        const txt = resumenCasos(g.casos.filter((c) => seleccion.has(c.id)));
+        try { await navigator.clipboard.writeText(txt); alert("Resumen copiado. Pégalo en tu email al compañero."); }
+        catch { prompt("Copia el resumen:", txt); }
+      }),
+      boton("Marcar como reenviado", "primario", async () => {
+        if (!seleccion.size) return alert("Selecciona al menos un caso.");
+        const destinatario = prompt("¿A quién lo has reenviado? (nombre o email del compañero)");
+        if (!destinatario) return;
+        try { await llamar("POST", { accion: "marcar_reenviado", lead_ids: [...seleccion], destinatario }); await cargar(); }
+        catch (e) { alert(MENSAJES[e.message] || `Error: ${e.message}`); }
+      })));
+    return caja;
+  }
+
   async function cargar() {
-    const lista = $("#lista");
+    const lista = $("#lista"), der = $("#derivaciones");
     lista.replaceChildren(el("p", { className: "meta", textContent: "Cargando…" }));
+    der.replaceChildren();
     try {
-      const { pendientes } = await llamar("GET");
+      const { pendientes, derivaciones } = await llamar("GET");
       lista.replaceChildren(...(pendientes.length ? pendientes.map(tarjeta) : [el("div", { className: "aviso ok", textContent: "No hay solicitudes pendientes." })]));
+      der.replaceChildren(...(derivaciones.length ? derivaciones.map(grupoDerivacion) : [el("div", { className: "aviso ok", textContent: "No hay derivaciones por reenviar." })]));
     } catch (e) {
       lista.replaceChildren(el("div", { className: "aviso mal", textContent: MENSAJES[e.message] || `No se pudo cargar la bandeja (${e.message}).` }));
     }

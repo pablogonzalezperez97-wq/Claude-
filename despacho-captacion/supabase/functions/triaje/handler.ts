@@ -12,14 +12,18 @@ const RESPUESTAS = {
     mensaje: "El abogado la revisará personalmente y te escribirá en un plazo máximo de 2 días laborables.",
   },
   derivar: {
-    titulo: "Tu asunto necesita atención inmediata",
-    mensaje: "Por su urgencia no podemos atenderlo en nuestro horario. Contacta con el Ilustre Colegio de Abogados de La Rioja para que te asignen un abogado de guardia.",
+    titulo: "Hemos recibido tu consulta",
+    mensaje: "Por la naturaleza del asunto, el abogado te pondrá en contacto con un compañero especializado en un plazo máximo de 2 días laborables.",
   },
   no_encaja: {
     titulo: "Gracias por tu consulta",
     mensaje: "Con la información aportada no podemos ofrecerte cita. Si quieres, amplía los detalles y vuelve a enviarla.",
   },
 } as const;
+
+const EMERGENCIA =
+  "Si hay una persona detenida, pide en comisaría el abogado del turno de oficio de guardia. " +
+  "Ante una situación de violencia de género llama al 016 (gratuito, no deja rastro en la factura) o al 112 si hay peligro inmediato.";
 
 export function crearHandlerTriaje(sql: () => Sql) {
   return async function handler(req: Request): Promise<Response> {
@@ -54,6 +58,8 @@ export function crearHandlerTriaje(sql: () => Sql) {
         resultado: r.resultado,
         ...RESPUESTAS[r.resultado],
         motivo: r.motivo_derivacion ?? undefined,
+        // Recursos de emergencia: nunca se omiten en asuntos urgentes.
+        emergencia: r.resultado === "derivar" ? EMERGENCIA : undefined,
       });
     } catch (e) {
       const codigo = (e as { message?: string }).message ?? "";

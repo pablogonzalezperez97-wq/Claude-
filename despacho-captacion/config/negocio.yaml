@@ -21,7 +21,8 @@ consulta_inicial:
   duracion_min: 30
   margen_entre_citas_min: 15
   modalidad: videollamada
-  precio_eur: 50
+  precio_eur: 50                  # IVA incluido (base 41,32 € + IVA 21 % 8,68 €)
+  iva_incluido: true
   descontable_si_encargo: false   # el asunto se presupuesta aparte
 
 capacidad:
@@ -43,3 +44,11 @@ scoring:
   umbral_agenda_directa: 70
   umbral_revision: 40
   alerta_plazo_dias_habiles: 5
+
+revision:
+  plazo_respuesta_dias_habiles: 2
+
+derivaciones:
+  modo: manual                    # el abogado reenvía a mano; no se remite al cliente a ningún tercero
+  agrupar_por: area               # penal, familia, civil...
+  incluir_recursos_emergencia: true   # turno de guardia, 016, 112

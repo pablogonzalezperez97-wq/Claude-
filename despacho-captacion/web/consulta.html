@@ -232,11 +232,15 @@
   function mostrarResultado(res) {
     const caja = $("#resultado");
     caja.innerHTML = "";
-    const tipo = { reservar: "ok", en_revision: "ok", derivar: "alerta", no_encaja: "alerta" }[res.resultado] || "ok";
+    const tipo = { reservar: "ok", en_revision: "ok", derivar: "ok", no_encaja: "alerta" }[res.resultado] || "ok";
     const h = document.createElement("h2"); h.textContent = res.titulo;
     const a = document.createElement("div"); a.className = `aviso ${tipo}`; a.textContent = res.mensaje;
     const ref = document.createElement("p"); ref.className = "meta"; ref.textContent = `Referencia: ${res.referencia}. Guárdala por si necesitas contactarnos.`;
     caja.append(h, a);
+    if (res.emergencia) {
+      const e = document.createElement("div"); e.className = "aviso mal"; e.textContent = res.emergencia;
+      caja.append(e);
+    }
     if (res.resultado === "reservar") {
       const b = document.createElement(C.URL_RESERVA ? "a" : "p");
       if (C.URL_RESERVA) { b.className = "boton primario"; b.href = `${C.URL_RESERVA}?ref=${encodeURIComponent(res.referencia)}`; b.textContent = "Reservar y pagar la consulta"; }

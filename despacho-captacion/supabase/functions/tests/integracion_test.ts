@@ -50,6 +50,13 @@ Deno.test({ name: "flujo completo formulario → panel", ignore: !sql, sanitizeR
   const p = await (await panel!(new Request("http://x/", { headers: { authorization: "Bearer token-abogado" } }))).json();
   const mio = p.pendientes.find((x: { contacto: { email: string } }) => x.contacto.email === solicitud.email);
   assert(mio, "el abogado ve la solicitud");
+  assert(Array.isArray(p.derivaciones), "incluye derivaciones");
+  assert(mio.responder_antes, "incluye plazo de respuesta");
+
+  // Derivación: mensaje con recursos de emergencia
+  const der = await (await triaje!(post({ ...solicitud, email: `d.${sufijo}@prueba.test`, materia: "der_penal_detenido", contrapartes: [] }))).json();
+  assertEquals(der.resultado, "derivar");
+  assert(der.emergencia?.includes("016"));
 
   // Decisión
   const d = await (await panel!(post({ accion: "decidir_lead", lead_id: mio.id, decision: "aceptar", nota: "OK" }, "token-abogado"))).json();

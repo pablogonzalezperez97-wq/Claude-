@@ -18,6 +18,7 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 - [ ] F7 · Proyecto exclusivo en plan Pro para producción (antes del lanzamiento)
 - [x] F2 · Formulario de consulta (`web/consulta.html`) y bandeja de revisión (`web/panel.html`)
 - [x] F2 · Edge Functions `triaje` (pública) y `panel` (abogado), con pruebas unitarias, de integración y en navegador
+- [x] F2 · Derivaciones manuales agrupadas por área, plazo de respuesta de 2 días hábiles y recursos de emergencia
 - [ ] F3 · Reserva (Cal.com) y pago (Stripe)
 
 ## Estructura

@@ -15,7 +15,7 @@ export const verificarConSupabase: VerificarUsuario = async (token) => {
 
 const ERRORES: Record<string, number> = {
   no_autorizado: 403, conflictos_sin_resolver: 409, lead_no_revisable: 409,
-  conflicto_no_encontrado: 404, decision_no_valida: 422, estado_no_valido: 422,
+  conflicto_no_encontrado: 404, decision_no_valida: 422, estado_no_valido: 422, falta_destinatario: 422,
 };
 
 export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = verificarConSupabase) {
@@ -26,7 +26,8 @@ export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = 
     const uid = token ? await verificar(token) : null;
     if (!uid) return json(req, { error: "no_autenticado" }, 401);
 
-    let cuerpo: Record<string, string> = {};
+    // deno-lint-ignore no-explicit-any
+    let cuerpo: Record<string, any> = {};
     if (req.method === "POST") {
       try { cuerpo = await req.json(); } catch { return json(req, { error: "json_invalido" }, 400); }
     } else if (req.method !== "GET") return json(req, { error: "metodo_no_permitido" }, 405);
@@ -41,8 +42,8 @@ export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = 
         if (!abogado) throw new Error("no_autorizado");
 
         if (req.method === "GET") {
-          const [f] = await tx`select despacho.panel_pendientes() as p`;
-          return { pendientes: f.p };
+          const [f] = await tx`select despacho.panel_pendientes() as p, despacho.panel_derivaciones() as d`;
+          return { pendientes: f.p, derivaciones: f.d };
         }
         switch (cuerpo.accion) {
           case "decidir_lead": {
@@ -52,6 +53,11 @@ export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = 
           case "decidir_conflicto": {
             await tx`select despacho.decidir_conflicto(${cuerpo.conflicto_id}::uuid, ${cuerpo.estado}::despacho.estado_conflicto, ${cuerpo.nota ?? null})`;
             return { ok: true };
+          }
+          case "marcar_reenviado": {
+            const ids = Array.isArray(cuerpo.lead_ids) ? cuerpo.lead_ids : [];
+            const [f] = await tx`select despacho.marcar_reenviado(${ids}::uuid[], ${cuerpo.destinatario ?? ""}, ${cuerpo.nota ?? null}) as n`;
+            return { ok: true, reenviados: f.n };
           }
           default: throw new Error("decision_no_valida");
         }

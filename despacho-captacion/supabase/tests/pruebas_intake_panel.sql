@@ -83,6 +83,22 @@ begin
   reset role;
   assert (select estado from leads where id = v_lead) = 'descartado', 'confirmado descarta';
 
+  -- 10. Derivaciones agrupadas por área y marcado como reenviado
+  set local role authenticated;
+  perform set_config('request.jwt.claim.sub', '99999999-9999-9999-9999-999999999999', true);
+  assert jsonb_array_length(panel_derivaciones()) = 1, 'un grupo (penal)';
+  assert panel_derivaciones()->0->>'area' = 'penal', 'agrupa por área';
+  v_err := null;
+  begin perform marcar_reenviado(array(select id from leads where estado = 'derivado'), ''); exception when others then v_err := sqlerrm; end;
+  assert v_err = 'falta_destinatario', 'exige destinatario';
+  assert marcar_reenviado(array(select id from leads where estado = 'derivado'), 'Compañera penalista') = 1, 'marca reenviado';
+  assert jsonb_array_length(panel_derivaciones()) = 0, 'ya no aparece';
+  assert (panel_pendientes()->0->>'responder_antes') is not null, 'plazo de respuesta';
+  reset role;
+
+  -- 11. Plazo de 2 días hábiles salta el puente de diciembre (vie 4 -> jue 10; 7 y 8 son festivos)
+  assert sumar_dias_habiles('2026-12-04', 2) = '2026-12-10', 'suma hábiles: ' || sumar_dias_habiles('2026-12-04', 2);
+
   raise notice 'TODAS LAS PRUEBAS DE INTAKE Y PANEL SUPERADAS';
 end $$;
 
