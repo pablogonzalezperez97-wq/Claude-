@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitar consulta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+  <script src="config.js"></script>
+</head>
+<body>
+<main class="contenedor">
+  <h1>Solicita tu consulta</h1>
+  <p class="sub">Cuéntanos tu asunto. Si encaja, podrás reservar una consulta de 30 minutos por videollamada (50 €). Práctica centrada en derecho mercantil.</p>
+
+  <form id="formulario" novalidate>
+    <section class="tarjeta">
+      <h2>Quién consulta</h2>
+      <div class="opciones" role="radiogroup" aria-label="Tipo de cliente">
+        <label class="opcion"><input type="radio" name="tipo" value="fisica" checked> Particular o autónomo</label>
+        <label class="opcion"><input type="radio" name="tipo" value="juridica"> Empresa</label>
+      </div>
+      <div class="error-campo" data-error="tipo"></div>
+
+      <label for="nombre" id="et-nombre">Nombre y apellidos</label>
+      <input id="nombre" name="nombre" type="text" autocomplete="name" required maxlength="200">
+      <div class="error-campo" data-error="nombre"></div>
+
+      <div class="fila">
+        <div>
+          <label for="nif" id="et-nif">DNI / NIE <span class="meta">(recomendado)</span></label>
+          <input id="nif" name="nif" type="text" maxlength="12" autocomplete="off">
+          <div class="error-campo" data-error="nif"></div>
+        </div>
+        <div>
+          <label for="telefono">Teléfono <span class="meta">(opcional)</span></label>
+          <input id="telefono" name="telefono" type="tel" autocomplete="tel" maxlength="20">
+          <div class="error-campo" data-error="telefono"></div>
+        </div>
+      </div>
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required>
+      <div class="error-campo" data-error="email"></div>
+
+      <label class="check" id="bloque-autonomo"><input type="checkbox" name="es_autonomo"> Consulto como autónomo o profesional</label>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Tu asunto</h2>
+      <label for="materia">Tipo de asunto</label>
+      <select id="materia" name="materia" required><option value="">Cargando…</option></select>
+      <div class="error-campo" data-error="materia"></div>
+
+      <label for="descripcion">Explica brevemente qué ocurre y qué necesitas</label>
+      <textarea id="descripcion" name="descripcion" maxlength="4000" required
+        placeholder="Hechos principales, fechas relevantes y qué te gustaría conseguir. No incluyas datos de salud ni otros datos especialmente sensibles."></textarea>
+      <div class="ayuda"><span id="contador">0</span>/4000</div>
+      <div class="error-campo" data-error="descripcion"></div>
+
+      <div class="fila">
+        <div>
+          <label for="fecha_limite">¿Hay un plazo que vence? <span class="meta">(opcional)</span></label>
+          <input id="fecha_limite" name="fecha_limite" type="date">
+          <div class="ayuda">Por ejemplo, un requerimiento o una demanda recibida.</div>
+          <div class="error-campo" data-error="fecha_limite"></div>
+        </div>
+        <div>
+          <label for="cuantia_eur">Importe aproximado en juego (€) <span class="meta">(opcional)</span></label>
+          <input id="cuantia_eur" name="cuantia_eur" type="number" min="0" step="100" inputmode="numeric">
+          <div class="error-campo" data-error="cuantia_eur"></div>
+        </div>
+      </div>
+
+      <label class="check"><input type="checkbox" name="documentacion_disponible"> Tengo la documentación del asunto (contratos, escrituras, notificaciones…)</label>
+
+      <label>Parte contraria <span class="meta">(si la hay; nos permite comprobar conflictos de intereses)</span></label>
+      <div id="contrapartes"></div>
+      <button type="button" class="secundario" id="anadir-contraparte">+ Añadir parte contraria</button>
+      <div class="error-campo" data-error="contrapartes"></div>
+    </section>
+
+    <section class="tarjeta">
+      <!-- Honeypot antispam: invisible para personas -->
+      <div class="oculto" aria-hidden="true"><label for="web">Web</label><input id="web" name="web" type="text" tabindex="-1" autocomplete="off"></div>
+
+      <label class="check"><input type="checkbox" name="acepta_privacidad" required>
+        <span>He leído la información básica sobre protección de datos y la <a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.</span></label>
+      <div class="error-campo" data-error="acepta_privacidad"></div>
+      <label class="check"><input type="checkbox" name="acepta_condiciones" required>
+        <span>Acepto las <a href="condiciones.html" target="_blank" rel="noopener">condiciones de la consulta</a>: 30 min por videollamada, 50 € (IVA incl.), reembolso íntegro si cancelo con más de 24 h. El resto del asunto se presupuesta aparte.</span></label>
+      <div class="error-campo" data-error="acepta_condiciones"></div>
+      <label class="check"><input type="checkbox" name="acepta_comunicaciones">
+        <span>Quiero recibir comunicaciones informativas del despacho (opcional).</span></label>
+
+      <dl class="info-rgpd">
+        <dt>Responsable:</dt><dd id="rgpd-responsable">el abogado titular del despacho.</dd>
+        <dt>Finalidad:</dt><dd>atender tu solicitud, valorar el encargo y comprobar conflictos de intereses.</dd>
+        <dt>Legitimación:</dt><dd>aplicación de medidas precontractuales a tu petición (art. 6.1.b RGPD); interés legítimo y deber deontológico para los datos de la parte contraria; tu consentimiento para comunicaciones.</dd>
+        <dt>Destinatarios:</dt><dd>no se ceden datos salvo obligación legal. Proveedores tecnológicos con contrato de encargado y alojamiento en la UE.</dd>
+        <dt>Derechos:</dt><dd>acceso, rectificación, supresión, oposición, limitación y portabilidad, y reclamación ante la AEPD.</dd>
+        <dt>Más información:</dt><dd><a href="privacidad.html" target="_blank" rel="noopener">política de privacidad</a>. Todo lo que nos cuentes está amparado por el secreto profesional.</dd>
+      </dl>
+    </section>
+
+    <div id="aviso-global" role="alert"></div>
+    <button type="submit" class="primario" id="enviar">Enviar consulta</button>
+  </form>
+
+  <section id="resultado" class="tarjeta" hidden aria-live="polite"></section>
+</main>
+
+<script>
+(() => {
+  const C = window.DESPACHO_CONFIG;
+  const API = `${C.SUPABASE_URL}/functions/v1/triaje`;
+  const cabeceras = C.SUPABASE_ANON_KEY ? { apikey: C.SUPABASE_ANON_KEY, Authorization: `Bearer ${C.SUPABASE_ANON_KEY}` } : {};
+  const $ = (s) => document.querySelector(s);
+  const form = $("#formulario");
+
+  if (C.NOMBRE_DESPACHO) $("#rgpd-responsable").textContent = C.NOMBRE_DESPACHO + (C.EMAIL_CONTACTO ? ` (${C.EMAIL_CONTACTO})` : "") + ".";
+
+  // Tipo de cliente: adapta etiquetas
+  const tipoActual = () => form.tipo.value;
+  function ajustarTipo() {
+    const emp = tipoActual() === "juridica";
+    $("#et-nombre").textContent = emp ? "Razón social" : "Nombre y apellidos";
+    $("#et-nif").innerHTML = emp ? "CIF" : 'DNI / NIE <span class="meta">(recomendado)</span>';
+    $("#bloque-autonomo").hidden = emp;
+  }
+  form.querySelectorAll("input[name=tipo]").forEach((r) => r.addEventListener("change", ajustarTipo));
+  ajustarTipo();
+
+  // Contador
+  form.descripcion.addEventListener("input", () => { $("#contador").textContent = form.descripcion.value.length; });
+
+  // Fecha mínima = hoy
+  form.fecha_limite.min = new Date().toISOString().slice(0, 10);
+
+  // Contrapartes dinámicas
+  const cont = $("#contrapartes");
+  function anadirContraparte() {
+    if (cont.children.length >= 5) return;
+    const fila = document.createElement("div");
+    fila.className = "fila";
+    fila.innerHTML = '<div><input type="text" class="cp-nombre" placeholder="Nombre o razón social" maxlength="200" aria-label="Nombre de la parte contraria"></div>' +
+                     '<div><input type="text" class="cp-nif" placeholder="DNI/CIF (si lo sabes)" maxlength="12" aria-label="DNI o CIF de la parte contraria"></div>';
+    cont.appendChild(fila);
+    $("#anadir-contraparte").hidden = cont.children.length >= 5;
+  }
+  $("#anadir-contraparte").addEventListener("click", anadirContraparte);
+  anadirContraparte();
+
+  // Catálogo de materias
+  const GRUPOS = { nucleo: "Derecho mercantil", complementaria: "Otras materias", derivar: "Urgencias (te orientaremos)" };
+  fetch(API, { headers: cabeceras }).then((r) => r.json()).then(({ materias }) => {
+    const sel = form.materia;
+    sel.innerHTML = '<option value="">Elige una opción</option>';
+    for (const nivel of Object.keys(GRUPOS)) {
+      const og = document.createElement("optgroup");
+      og.label = GRUPOS[nivel];
+      materias.filter((m) => m.nivel === nivel).forEach((m) => og.appendChild(new Option(m.nombre, m.codigo)));
+      if (og.children.length) sel.appendChild(og);
+    }
+    sel.appendChild(new Option("Otro asunto (descríbelo abajo)", ""));
+  }).catch(() => { form.materia.innerHTML = '<option value="">No se pudo cargar la lista. Recarga la página.</option>'; });
+
+  function limpiarErrores() {
+    form.querySelectorAll("[data-error]").forEach((e) => (e.textContent = ""));
+    $("#aviso-global").innerHTML = "";
+  }
+  function mostrarErrores(errores) {
+    let primero = null;
+    for (const [campo, msg] of Object.entries(errores || {})) {
+      const el = form.querySelector(`[data-error="${campo.split(".")[0]}"]`);
+      if (el) { el.textContent = msg; primero ??= el; }
+    }
+    primero?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    limpiarErrores();
+    const f = form;
+    const num = f.cuantia_eur.value === "" ? undefined : Number(f.cuantia_eur.value);
+    const datos = {
+      tipo: tipoActual(),
+      nombre: f.nombre.value.trim(),
+      nif: f.nif.value.trim() || undefined,
+      email: f.email.value.trim(),
+      telefono: f.telefono.value.trim() || undefined,
+      es_autonomo: tipoActual() === "fisica" && f.es_autonomo.checked,
+      materia: f.materia.value,
+      descripcion: f.descripcion.value.trim(),
+      fecha_limite: f.fecha_limite.value || undefined,
+      cuantia_eur: num,
+      documentacion_disponible: f.documentacion_disponible.checked,
+      contrapartes: [...cont.children].map((r) => ({ nombre: r.querySelector(".cp-nombre").value.trim(), nif: r.querySelector(".cp-nif").value.trim() || undefined }))
+                                      .filter((c) => c.nombre),
+      acepta_privacidad: f.acepta_privacidad.checked,
+      acepta_condiciones: f.acepta_condiciones.checked,
+      acepta_comunicaciones: f.acepta_comunicaciones.checked,
+      version_textos: C.VERSION_TEXTOS,
+      web: f.web.value,
+    };
+    if (!datos.materia) { mostrarErrores({ materia: "Elige el tipo de asunto. Si no aparece, elige el más parecido y explícalo en la descripción." }); return; }
+
+    const boton = $("#enviar");
+    boton.disabled = true; boton.textContent = "Enviando…";
+    try {
+      const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json", ...cabeceras }, body: JSON.stringify(datos) });
+      const res = await r.json();
+      if (!r.ok) {
+        mostrarErrores(res.errores);
+        if (res.mensaje || !res.errores) {
+          const aviso = document.createElement("div");
+          aviso.className = "aviso mal";
+          aviso.textContent = res.mensaje || "Revisa los datos marcados.";
+          $("#aviso-global").replaceChildren(aviso);
+        }
+        return;
+      }
+      mostrarResultado(res);
+    } catch {
+      $("#aviso-global").innerHTML = '<div class="aviso mal">No hemos podido enviar la consulta. Comprueba tu conexión e inténtalo de nuevo.</div>';
+    } finally {
+      boton.disabled = false; boton.textContent = "Enviar consulta";
+    }
+  });
+
+  function mostrarResultado(res) {
+    const caja = $("#resultado");
+    caja.innerHTML = "";
+    const tipo = { reservar: "ok", en_revision: "ok", derivar: "alerta", no_encaja: "alerta" }[res.resultado] || "ok";
+    const h = document.createElement("h2"); h.textContent = res.titulo;
+    const a = document.createElement("div"); a.className = `aviso ${tipo}`; a.textContent = res.mensaje;
+    const ref = document.createElement("p"); ref.className = "meta"; ref.textContent = `Referencia: ${res.referencia}. Guárdala por si necesitas contactarnos.`;
+    caja.append(h, a);
+    if (res.resultado === "reservar") {
+      const b = document.createElement(C.URL_RESERVA ? "a" : "p");
+      if (C.URL_RESERVA) { b.className = "boton primario"; b.href = `${C.URL_RESERVA}?ref=${encodeURIComponent(res.referencia)}`; b.textContent = "Reservar y pagar la consulta"; }
+      else { b.className = "meta"; b.textContent = "Te enviaremos por email el enlace para reservar y pagar."; }
+      caja.append(b);
+    }
+    caja.append(ref);
+    form.hidden = true; caja.hidden = false;
+    caja.scrollIntoView({ behavior: "smooth" });
+  }
+})();
+</script>
+</body>
+</html>

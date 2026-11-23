@@ -1,0 +1,6 @@
+# Configuración de las Edge Functions del despacho
+[functions.triaje]
+verify_jwt = false   # formulario público: la validación y el antiabuso se hacen dentro
+
+[functions.panel]
+verify_jwt = true    # además se comprueba que el usuario figura en despacho.abogados

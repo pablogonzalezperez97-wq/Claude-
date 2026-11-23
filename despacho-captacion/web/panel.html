@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Bandeja de revisión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<main class="contenedor">
+  <h1>Bandeja de revisión</h1>
+  <p class="sub" id="estado-sesion">Acceso reservado al abogado.</p>
+
+  <section id="login" class="tarjeta" hidden>
+    <h2>Entrar</h2>
+    <form id="form-login">
+      <label for="email-login">Email</label>
+      <input id="email-login" type="email" required autocomplete="email">
+      <div class="acciones"><button class="primario" type="submit">Enviarme enlace de acceso</button></div>
+    </form>
+    <div id="aviso-login" role="status"></div>
+  </section>
+
+  <section id="bandeja" hidden>
+    <div class="acciones" style="margin:0 0 16px">
+      <button class="secundario" id="recargar">Actualizar</button>
+      <button class="secundario" id="salir">Cerrar sesión</button>
+    </div>
+    <div id="lista" aria-live="polite"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const C = window.DESPACHO_CONFIG;
+  const sb = supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
+  const API = `${C.SUPABASE_URL}/functions/v1/panel`;
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, props = {}, ...hijos) => { const e = document.createElement(tag); Object.assign(e, props); e.append(...hijos); return e; };
+
+  async function llamar(metodo, cuerpo) {
+    const { data: { session } } = await sb.auth.getSession();
+    const r = await fetch(API, {
+      method: metodo,
+      headers: { apikey: C.SUPABASE_ANON_KEY, Authorization: `Bearer ${session?.access_token}`, "Content-Type": "application/json" },
+      body: cuerpo ? JSON.stringify(cuerpo) : undefined,
+    });
+    const datos = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(datos.error || `HTTP ${r.status}`);
+    return datos;
+  }
+
+  const MENSAJES = {
+    conflictos_sin_resolver: "Resuelve primero los posibles conflictos de intereses.",
+    no_autorizado: "Tu usuario no figura como abogado del despacho.",
+    lead_no_revisable: "Esta solicitud ya no está pendiente.",
+  };
+  const fmtFecha = (s) => s ? new Date(s).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" }) : "";
+  const fmtEur = (n) => n == null ? "" : Number(n).toLocaleString("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+
+  function tarjeta(l) {
+    const chips = el("div");
+    if (l.alerta_plazo) chips.append(el("span", { className: "chip alerta", textContent: `Plazo: ${l.dias_habiles} días hábiles` }));
+    if (l.conflictos.some((k) => k.estado === "pendiente")) chips.append(el("span", { className: "chip mal", textContent: "Posible conflicto" }));
+    chips.append(el("span", { className: "chip", textContent: l.estado === "apto" ? "Apto (agenda directa)" : "Revisión" }));
+    chips.append(el("span", { className: "chip", textContent: `${l.puntuacion ?? 0} pts` }));
+
+    const t = el("article", { className: "tarjeta" },
+      chips,
+      el("h2", { textContent: `${l.cliente.nombre} · ${l.materia?.nombre ?? "Materia sin clasificar"}` }),
+      el("p", { className: "meta", textContent:
+        [l.cliente.tipo === "juridica" ? "Empresa" : "Particular", l.cliente.nif, l.contacto.email, l.contacto.telefono,
+         l.cuantia_eur != null ? fmtEur(l.cuantia_eur) : null, l.fecha_limite ? `Vence ${fmtFecha(l.fecha_limite)}` : null,
+         l.documentacion_aportada ? "Tiene documentación" : null, `Recibida ${fmtFecha(l.creado_en)}`].filter(Boolean).join(" · ") }),
+      el("div", { className: "relato", textContent: l.descripcion ?? "" }),
+    );
+    if (l.contrapartes.length) {
+      t.append(el("p", { className: "meta", textContent: "Parte contraria: " + l.contrapartes.map((c) => c.nif ? `${c.nombre} (${c.nif})` : c.nombre).join(", ") }));
+    }
+    for (const k of l.conflictos) {
+      const caja = el("div", { className: `aviso ${k.estado === "pendiente" ? "mal" : "ok"}` },
+        el("strong", { textContent: `Conflicto (${k.criterio}, similitud ${k.similitud}): ` }), k.detalle,
+        el("span", { textContent: k.estado === "pendiente" ? "" : ` — ${k.estado}` }));
+      if (k.estado === "pendiente") {
+        caja.append(el("div", { className: "acciones" },
+          boton("No es conflicto", "secundario", () => accion({ accion: "decidir_conflicto", conflicto_id: k.id, estado: "descartado" }, true)),
+          boton("Confirmar conflicto", "peligro", () => accion({ accion: "decidir_conflicto", conflicto_id: k.id, estado: "confirmado" }, true, "Se descartará el asunto. ¿Confirmas el conflicto?"))));
+      }
+      t.append(caja);
+    }
+    t.append(el("div", { className: "acciones" },
+      boton("Aceptar", "primario", () => accion({ accion: "decidir_lead", lead_id: l.id, decision: "aceptar" }, true)),
+      boton("Derivar", "secundario", () => accion({ accion: "decidir_lead", lead_id: l.id, decision: "derivar" }, true)),
+      boton("Rechazar", "peligro", () => accion({ accion: "decidir_lead", lead_id: l.id, decision: "rechazar" }, true, "¿Rechazar esta solicitud?"))));
+    return t;
+  }
+
+  function boton(texto, clase, fn) { const b = el("button", { className: clase, textContent: texto, type: "button" }); b.addEventListener("click", fn); return b; }
+
+  async function accion(cuerpo, pedirNota, confirmacion) {
+    if (confirmacion && !confirm(confirmacion)) return;
+    const nota = pedirNota ? prompt("Nota interna (opcional):") : null;
+    try { await llamar("POST", { ...cuerpo, nota: nota || undefined }); await cargar(); }
+    catch (e) { alert(MENSAJES[e.message] || `Error: ${e.message}`); }
+  }
+
+  async function cargar() {
+    const lista = $("#lista");
+    lista.replaceChildren(el("p", { className: "meta", textContent: "Cargando…" }));
+    try {
+      const { pendientes } = await llamar("GET");
+      lista.replaceChildren(...(pendientes.length ? pendientes.map(tarjeta) : [el("div", { className: "aviso ok", textContent: "No hay solicitudes pendientes." })]));
+    } catch (e) {
+      lista.replaceChildren(el("div", { className: "aviso mal", textContent: MENSAJES[e.message] || `No se pudo cargar la bandeja (${e.message}).` }));
+    }
+  }
+
+  async function iniciar() {
+    const { data: { session } } = await sb.auth.getSession();
+    $("#login").hidden = !!session; $("#bandeja").hidden = !session;
+    $("#estado-sesion").textContent = session ? `Sesión iniciada: ${session.user.email}` : "Acceso reservado al abogado.";
+    if (session) cargar();
+  }
+
+  $("#form-login").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const { error } = await sb.auth.signInWithOtp({ email: $("#email-login").value.trim(), options: { emailRedirectTo: location.href, shouldCreateUser: false } });
+    $("#aviso-login").replaceChildren(el("div", { className: `aviso ${error ? "mal" : "ok"}`, textContent: error ? "No se pudo enviar el enlace." : "Revisa tu email y abre el enlace de acceso." }));
+  });
+  $("#recargar").addEventListener("click", cargar);
+  $("#salir").addEventListener("click", async () => { await sb.auth.signOut(); iniciar(); });
+  sb.auth.onAuthStateChange(() => iniciar());
+  iniciar();
+})();
+</script>
+</body>
+</html>

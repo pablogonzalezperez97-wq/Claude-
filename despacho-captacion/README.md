@@ -16,13 +16,28 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 - [x] F2 (base) · Triaje, scoring, derivación y comprobación de conflictos en la base de datos
 - [ ] F1 · Despliegue en el entorno de **pruebas** (proyecto de Frankfurt, esquema `despacho`, sin datos reales). Bloqueado: el proyecto está hibernado y no responde
 - [ ] F7 · Proyecto exclusivo en plan Pro para producción (antes del lanzamiento)
-- [ ] F2 · Formulario de triaje y cola de revisión
+- [x] F2 · Formulario de consulta (`web/consulta.html`) y bandeja de revisión (`web/panel.html`)
+- [x] F2 · Edge Functions `triaje` (pública) y `panel` (abogado), con pruebas unitarias, de integración y en navegador
+- [ ] F3 · Reserva (Cal.com) y pago (Stripe)
 
 ## Estructura
 
 ```
 config/negocio.yaml          Parámetros del despacho (fuente única de verdad)
 supabase/migrations/         Esquema (aislado en `despacho`), lógica de triaje, datos iniciales y festivos
-supabase/tests/              Pruebas funcionales del triaje (psql -1 -f)
+supabase/tests/              Pruebas SQL del triaje, el formulario y el panel (psql -1 -f)
+supabase/functions/          Edge Functions: triaje (pública) y panel (abogado) + pruebas Deno
+web/                         Formulario de consulta y bandeja de revisión
+herramientas/                Servidor de desarrollo local
+```
+
+## Cómo probar en local
+
+```
+# 1. Postgres local con las migraciones aplicadas (ver supabase/tests)
+# 2. Pruebas
+cd supabase/functions && TEST_DB_URL=postgres://... deno test -A tests/
+# 3. Web + funciones en http://localhost:8787
+TEST_DB_URL=postgres://... deno run -A herramientas/servidor_local.ts
 docs/                        Benchmark, producción y requerimientos
 ```
