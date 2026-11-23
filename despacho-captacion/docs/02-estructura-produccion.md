@@ -14,7 +14,7 @@ Principio rector: **nada que comprometa al abogado sale sin validación humana.*
 | M3 | Triaje | Cuestionario dinámico por materia, alerta de plazos y scoring por puntos | Formulario propio + reglas en el backend |
 | M4 | Conflictos | Cruce de la contraparte y del propio cliente con el registro histórico | Supabase (búsqueda por NIF y por similitud de nombre) |
 | M5 | Pago | Consulta prepagada, política de cancelación, consentimiento de desistimiento | Stripe Checkout |
-| M6 | Agenda | Franjas de tarde, topes, márgenes y videollamada | Cal.com + Google Calendar |
+| M6 | Agenda | Franjas (L/J 18:00–21:00, M/X 19:15–21:15), topes, márgenes y videollamada; ver `config/negocio.yaml` | Cal.com + Google Calendar |
 | M7 | Expediente previo | Resumen IA del caso + documentos, enviado antes de la cita | Supabase Storage + email |
 | M8 | Comunicaciones | Confirmación, recordatorios, documentación pendiente y seguimiento | Email transaccional (Resend o Gmail) |
 | M9 | Panel del abogado | Cola de revisión (dudosos y conflictos), agenda y leads | Panel web protegido |
@@ -44,11 +44,27 @@ Visita → Asistente FAQ ─(caso concreto)→ Triaje → Scoring
 - `interacciones_ia` (id, sesión, pregunta, respuesta, faq_ids_usadas, derivada, creado_en) — trazabilidad
 - `asuntos` (id, cliente_id, hoja_encargo_firmada, presupuesto, estado) — fase 2
 
-## 4. Reglas de scoring (propuesta inicial, para validar)
+## 4. Catálogo, derivación y scoring
+
+### 4.1 Posicionamiento
+
+**Abogado generalista con práctica centrada en derecho mercantil.** El sistema acepta un abanico amplio, pero prioriza lo mercantil en el scoring, en la web y en la profundidad de las FAQ.
+
+> Deontología: en publicidad no se usa "especialista" (la abogacía española no tiene título oficial de especialidad y la publicidad debe ser veraz). Se emplean fórmulas como "práctica centrada en…" o "orientado a…".
+
+### 4.2 Catálogo propuesto (para validar)
+
+| Nivel | Materias | Peso |
+|---|---|---|
+| **Núcleo: mercantil** | Constitución y modificaciones societarias, pactos de socios, estatutos, juntas y actas, contratos mercantiles (distribución, agencia, prestación de servicios, NDA, compraventa), reclamación de deudas comerciales, responsabilidad de administradores, compraventa de participaciones o de negocio | +30 |
+| **Complementario** | Civil patrimonial (contratos, reclamaciones de cantidad, arrendamientos, herencias sencillas), tributario (requerimientos, sanciones, recursos de reposición), administrativo sencillo (sanciones y multas) | +20 |
+| **Derivar** | Por urgencia incompatible con la franja de tarde: penal con detenido o guardia, violencia de género, medidas urgentes de familia, desahucios en ejecución inminente. Por conflicto con el empleo actual: lo que se defina en B8b | Respuesta de derivación |
+
+### 4.3 Reglas de scoring (propuesta inicial, para validar)
 
 | Criterio | Puntos |
 |---|---|
-| Materia dentro del catálogo (mercantil o tributario) | +30 (fuera del catálogo = derivar) |
+| Materia: núcleo mercantil +30 · complementaria +20 | (derivable = respuesta de derivación) |
 | Plazo legal en curso (requerimiento, recurso) | +20; si vence en ≤5 días hábiles, alerta inmediata |
 | Cuantía o valor estimado sobre el umbral X | +15 |
 | Documentación clave aportada | +15 |

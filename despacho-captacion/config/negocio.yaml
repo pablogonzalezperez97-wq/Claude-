@@ -1,0 +1,44 @@
+# Configuración de negocio: fuente única de verdad para agenda, scoring y web.
+# Los valores marcados PENDIENTE son supuestos provisionales a confirmar (ver docs/03).
+
+zona_horaria: Europe/Madrid
+
+posicionamiento:
+  tipo: generalista
+  foco_principal: mercantil
+  texto_web: "Abogado · práctica centrada en derecho mercantil"
+
+disponibilidad:
+  # Franjas en las que se ofrecen citas (B1, confirmado)
+  lunes:     { inicio: "18:00", fin: "21:00" }
+  martes:    { inicio: "19:15", fin: "21:15" }
+  miercoles: { inicio: "19:15", fin: "21:15" }
+  jueves:    { inicio: "18:00", fin: "21:00" }
+  horas_semanales: 10
+  festivos: nacionales_y_autonomicos   # PENDIENTE: confirmar comunidad autónoma
+
+consulta_inicial:
+  duracion_min: 45          # PENDIENTE (B2)
+  margen_entre_citas_min: 15  # PENDIENTE (B2)
+  modalidad: videollamada   # PENDIENTE (B6)
+  precio_eur: null          # PENDIENTE (B4)
+  descontable_si_encargo: null  # PENDIENTE (B4)
+
+capacidad:
+  # Con 45+15 min caben 10 citas teóricas/semana (L 3, M 2, X 2, J 3).
+  # Se recomienda reservar parte del tiempo para ejecutar los encargos.
+  tope_citas_semana: 5      # PENDIENTE (B3) - propuesta
+  antelacion_minima_reserva_h: 12
+  horizonte_reserva_dias: 21
+
+cancelacion:
+  reembolso_si_cancela_antes_h: 24   # PENDIENTE (B5)
+  reprogramaciones_gratuitas: 1      # PENDIENTE (B5)
+
+scoring:
+  materias:
+    nucleo_mercantil: 30
+    complementaria: 20
+  umbral_agenda_directa: 70
+  umbral_revision: 40
+  alerta_plazo_dias_habiles: 5

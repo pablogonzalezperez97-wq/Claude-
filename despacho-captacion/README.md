@@ -1,6 +1,6 @@
 # Despacho de tarde · Sistema de captación y agenda
 
-Sistema para un despacho de abogado mercantil y tributario a tiempo parcial. Durante el día capta, informa, filtra, cobra y agenda; por la tarde el abogado atiende con el expediente ya preparado.
+Sistema para un despacho de abogado generalista, con práctica centrada en derecho mercantil, a tiempo parcial. Durante el día capta, informa, filtra, cobra y agenda; por la tarde el abogado atiende con el expediente ya preparado.
 
 ## Documentación
 

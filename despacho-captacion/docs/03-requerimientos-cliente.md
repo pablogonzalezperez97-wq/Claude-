@@ -21,14 +21,15 @@ Puedes responder directamente en este documento o en el chat.
 
 | # | Pregunta | Prioridad | Tu respuesta |
 |---|---|---|---|
-| B1 | Franjas disponibles (días y horas). Ej.: L–J 18:00–21:00 | 🔴 | |
+| B1 | Franjas disponibles (días y horas) | 🔴 | ✅ L y J 18:00–21:00 · M y X 19:15–21:15 (10 h/semana). *Supuesto: horario de tarde; confirmar.* |
 | B2 | Duración de la consulta inicial y margen entre citas | 🔴 | |
 | B3 | Tope de citas por semana | 🔴 | |
 | B4 | Precio de la consulta inicial; ¿se descuenta si hay encargo? | 🔴 | |
 | B5 | Política de cancelación (antelación para reembolso, reprogramaciones permitidas) | 🔴 | |
 | B6 | Modalidad: solo videollamada, presencial o ambas (¿dónde?) | 🔴 | |
-| B7 | Catálogo de servicios: lista cerrada de lo que **sí** haces, con precio orientativo | 🔴 | |
-| B8 | Lista de lo que **no** haces y a quién derivas (si tienes red de colegas) | 🟠 | |
+| B7 | Catálogo de servicios: lista cerrada de lo que **sí** haces, con precio orientativo | 🔴 | 🟡 Posicionamiento decidido: **abogado generalista con foco mercantil**. Pendiente validar la propuesta de catálogo (doc 02, §4) y los precios |
+| B8 | Lista de lo que **no** haces y a quién derivas (si tienes red de colegas) | 🟠 | 🟡 Propuesta en doc 02, §4 (materias urgentes incompatibles con la franja de tarde); pendiente de validar |
+| B8b | Materias vetadas por tu empleo actual: sector de tu empleador, sus clientes o contrapartes habituales | 🔴 | |
 | B9 | Ámbito geográfico (provincia, toda España, ¿clientes extranjeros?) | 🟠 | |
 | B10 | Idiomas de atención | 🟢 | |
 | B11 | Umbral de cuantía relevante para el scoring | 🟢 | |
@@ -71,4 +72,4 @@ Las cuentas se crean **a tu nombre**. Yo nunca necesito tus contraseñas: las cl
 
 ## Lo mínimo para que empiece a construir mañana
 
-**B1, B2, B3, B4, B7 y D3.** Con eso arranco F1 y F2 en paralelo: datos, triaje y conflictos. El resto puede llegar a medida que avancen las fases.
+~~B1~~ ✅ · **B2, B3, B4, validación de B7/B8, B8b y D3.** Con eso arranco F1 y F2 en paralelo: datos, triaje y conflictos. El resto puede llegar a medida que avancen las fases.
