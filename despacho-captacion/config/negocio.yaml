@@ -18,24 +18,25 @@ disponibilidad:
   festivos: nacionales_y_autonomicos   # PENDIENTE: confirmar comunidad autónoma
 
 consulta_inicial:
-  duracion_min: 45          # PENDIENTE (B2)
-  margen_entre_citas_min: 15  # PENDIENTE (B2)
-  modalidad: videollamada   # PENDIENTE (B6)
-  precio_eur: null          # PENDIENTE (B4)
-  descontable_si_encargo: null  # PENDIENTE (B4)
+  duracion_min: 30
+  margen_entre_citas_min: 15
+  modalidad: videollamada
+  precio_eur: 50
+  descontable_si_encargo: false   # el asunto se presupuesta aparte
 
 capacidad:
-  # Con 45+15 min caben 10 citas teóricas/semana (L 3, M 2, X 2, J 3).
+  # Con 30+15 min caben 14 citas teóricas/semana (L 4, M 3, X 3, J 4).
   # Se recomienda reservar parte del tiempo para ejecutar los encargos.
-  tope_citas_semana: 5      # PENDIENTE (B3) - propuesta
+  tope_citas_semana: 5
   antelacion_minima_reserva_h: 12
   horizonte_reserva_dias: 21
 
 cancelacion:
-  reembolso_si_cancela_antes_h: 24   # PENDIENTE (B5)
-  reprogramaciones_gratuitas: 1      # PENDIENTE (B5)
+  reembolso_si_cancela_antes_h: 24
+  reprogramaciones_gratuitas: 1
 
 scoring:
+  umbral_cuantia_eur: 6000
   materias:
     nucleo_mercantil: 30
     complementaria: 20

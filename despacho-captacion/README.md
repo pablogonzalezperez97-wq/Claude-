@@ -11,5 +11,16 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 ## Estado
 
 - [x] F0 · Benchmark y estructura de producción
-- [ ] F0 · Decisiones de negocio (pendientes, ver doc 03)
-- [ ] F1 · Núcleo de datos
+- [x] F0 · Decisiones de negocio (bloque B cerrado)
+- [x] F1 · Esquema de datos: migraciones en `supabase/migrations/`, probadas en PostgreSQL local
+- [x] F2 (base) · Triaje, scoring, derivación y comprobación de conflictos en la base de datos
+- [ ] F1 · Despliegue en Supabase (bloqueado: límite de proyectos gratuitos)
+- [ ] F2 · Formulario de triaje y cola de revisión
+
+## Estructura
+
+```
+config/negocio.yaml          Parámetros del despacho (fuente única de verdad)
+supabase/migrations/         Esquema, lógica de triaje y datos iniciales
+docs/                        Benchmark, producción y requerimientos
+```
