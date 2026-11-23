@@ -14,13 +14,15 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 - [x] F0 · Decisiones de negocio (bloque B cerrado)
 - [x] F1 · Esquema de datos: migraciones en `supabase/migrations/`, probadas en PostgreSQL local
 - [x] F2 (base) · Triaje, scoring, derivación y comprobación de conflictos en la base de datos
-- [ ] F1 · Despliegue en Supabase (bloqueado: límite de proyectos gratuitos)
+- [ ] F1 · Despliegue en el entorno de **pruebas** (proyecto de Frankfurt, esquema `despacho`, sin datos reales). Bloqueado: el proyecto está hibernado y no responde
+- [ ] F7 · Proyecto exclusivo en plan Pro para producción (antes del lanzamiento)
 - [ ] F2 · Formulario de triaje y cola de revisión
 
 ## Estructura
 
 ```
 config/negocio.yaml          Parámetros del despacho (fuente única de verdad)
-supabase/migrations/         Esquema, lógica de triaje y datos iniciales
+supabase/migrations/         Esquema (aislado en `despacho`), lógica de triaje, datos iniciales y festivos
+supabase/tests/              Pruebas funcionales del triaje (psql -1 -f)
 docs/                        Benchmark, producción y requerimientos
 ```
