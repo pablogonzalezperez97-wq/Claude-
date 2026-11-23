@@ -1,0 +1,7 @@
+ios/Config/Secrets.xcconfig
+ios/*.xcodeproj
+ios/*.xcworkspace
+ios/DerivedData/
+.DS_Store
+supabase/.temp/
+supabase/.env
