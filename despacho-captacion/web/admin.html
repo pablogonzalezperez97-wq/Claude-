@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Gestión del despacho</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilos.css">
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <main class="contenedor" id="login" hidden>
+    <h1>Gestión del despacho</h1>
+    <p class="sub">Acceso reservado al abogado.</p>
+    <section class="tarjeta">
+      <form id="form-login">
+        <label for="email-login">Email</label>
+        <input id="email-login" type="email" required autocomplete="email">
+        <div class="acciones"><button class="primario" type="submit">Enviarme enlace de acceso</button></div>
+      </form>
+      <div id="aviso-login" role="status"></div>
+    </section>
+  </main>
+
+  <div class="app" id="app" hidden>
+    <nav class="lateral" aria-label="Secciones">
+      <div class="marca" id="marca">Despacho</div>
+      <a href="#resumen" data-ruta="resumen">Resumen</a>
+      <a href="#solicitudes" data-ruta="solicitudes">Solicitudes <span class="contador" id="c-solicitudes" hidden></span></a>
+      <a href="#expedientes" data-ruta="expedientes">Expedientes</a>
+      <a href="#agenda" data-ruta="agenda">Agenda</a>
+      <a href="#tareas" data-ruta="tareas">Tareas <span class="contador" id="c-tareas" hidden></span></a>
+      <a href="#finanzas" data-ruta="finanzas">Finanzas</a>
+      <a href="#clientes" data-ruta="clientes">Clientes</a>
+      <a href="#oportunidades" data-ruta="oportunidades">Oportunidades <span class="contador" id="c-oportunidades" hidden></span></a>
+      <div class="pie"><span id="usuario"></span><br><a href="#" id="salir" style="padding:0">Cerrar sesión</a></div>
+    </nav>
+    <main class="principal" id="vista" aria-live="polite"></main>
+  </div>
+  <dialog id="dialogo"></dialog>
+  <script src="admin.js"></script>
+</body>
+</html>

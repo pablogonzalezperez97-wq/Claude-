@@ -1,5 +1,6 @@
 import type { Sql } from "../_shared/db.ts";
 import { json } from "../_shared/http.ts";
+import { ACCIONES_GESTION } from "./gestion.ts";
 
 export type VerificarUsuario = (token: string) => Promise<string | null>;
 
@@ -16,6 +17,7 @@ export const verificarConSupabase: VerificarUsuario = async (token) => {
 const ERRORES: Record<string, number> = {
   no_autorizado: 403, conflictos_sin_resolver: 409, lead_no_revisable: 409,
   conflicto_no_encontrado: 404, decision_no_valida: 422, estado_no_valido: 422, falta_destinatario: 422,
+  datos_invalidos: 422, no_encontrado: 404, lead_no_encontrado: 404,
 };
 
 export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = verificarConSupabase) {
@@ -59,14 +61,18 @@ export function crearHandlerPanel(sql: () => Sql, verificar: VerificarUsuario = 
             const [f] = await tx`select despacho.marcar_reenviado(${ids}::uuid[], ${cuerpo.destinatario ?? ""}, ${cuerpo.nota ?? null}) as n`;
             return { ok: true, reenviados: f.n };
           }
-          default: throw new Error("decision_no_valida");
+          default: {
+            const accion = typeof cuerpo.accion === "string" && Object.hasOwn(ACCIONES_GESTION, cuerpo.accion) ? ACCIONES_GESTION[cuerpo.accion] : null;
+            if (!accion) throw new Error("decision_no_valida");
+            return await accion(tx, cuerpo);
+          }
         }
       });
       return json(req, resultado);
     } catch (e) {
       const codigo = (e as { message?: string }).message ?? "";
       if (ERRORES[codigo]) return json(req, { error: codigo }, ERRORES[codigo]);
-      if (/invalid input (syntax|value)/.test(codigo)) return json(req, { error: "datos_invalidos" }, 422);
+      if (/invalid input (syntax|value)|out of range|date\/time/.test(codigo)) return json(req, { error: "datos_invalidos" }, 422);
       console.error("panel_error", codigo);
       return json(req, { error: "error_interno" }, 500);
     }

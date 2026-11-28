@@ -21,7 +21,7 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 - [x] F2 · Edge Functions `triaje` (pública) y `panel` (abogado), con pruebas unitarias, de integración y en navegador
 - [x] F2 · Derivaciones manuales agrupadas por área, plazo de respuesta de 2 días hábiles y recursos de emergencia
 - [x] P1 (datos) · Expedientes, agenda, tareas, finanzas, documentos, portal del cliente y oportunidades IA, con pruebas de aislamiento
-- [ ] P1 · Interfaz del panel del abogado
+- [x] P1 · Panel del abogado (`web/admin.html`): resumen, solicitudes, expedientes con ficha y pestañas, agenda mensual con festivos, tareas, finanzas con IVA, clientes y oportunidades
 - [ ] F3/P4 · Reserva (Cal.com) y pago (Stripe)
 
 ## Estructura
@@ -31,7 +31,7 @@ config/negocio.yaml          Parámetros del despacho (fuente única de verdad)
 supabase/migrations/         Esquema (aislado en `despacho`), lógica de triaje, datos iniciales y festivos
 supabase/tests/              Pruebas SQL del triaje, el formulario y el panel (psql -1 -f)
 supabase/functions/          Edge Functions: triaje (pública) y panel (abogado) + pruebas Deno
-web/                         Formulario de consulta y bandeja de revisión
+web/                         Formulario de consulta (consulta.html) y panel de gestión del abogado (admin.html)
 herramientas/                Servidor de desarrollo local
 ```
 

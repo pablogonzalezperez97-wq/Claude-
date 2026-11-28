@@ -19,15 +19,15 @@ Evolución del sistema de captación hacia una plataforma con **tres caras sobre
 
 | Módulo | Contenido | Estado |
 |---|---|---|
-| Dashboard | Vencimientos y audiencias a 7 días, citas, expedientes activos por estado, tareas atrasadas, pendiente de cobro, ingresos y gastos del mes, solicitudes y oportunidades por revisar | ✅ datos (`panel_dashboard`) · ⏳ interfaz |
-| Clientes | Directorio, ficha, expedientes, acceso al portal | ✅ datos · ⏳ interfaz |
-| Expedientes | Número automático (2026/0001), materia, contraparte, órgano, procedimiento, estado, responsable, honorarios, hoja de encargo, diligencia PBC, notas internas | ✅ datos · ⏳ interfaz |
-| Agenda | Vencimientos, audiencias, reuniones, recordatorios y **citas del embudo, que entran solas** | ✅ datos · ⏳ interfaz |
-| Tareas | Por expediente, con fecha y responsable; atrasadas destacadas | ✅ datos · ⏳ interfaz |
+| Dashboard | Vencimientos y audiencias a 7 días, citas, expedientes activos por estado, tareas atrasadas, pendiente de cobro, ingresos y gastos del mes, solicitudes y oportunidades por revisar | ✅ |
+| Clientes | Directorio, ficha, expedientes, acceso al portal | ✅ |
+| Expedientes | Número automático (2026/0001), materia, contraparte, órgano, procedimiento, estado, responsable, honorarios, hoja de encargo, diligencia PBC, notas internas | ✅ |
+| Agenda | Vencimientos, audiencias, reuniones, recordatorios y **citas del embudo, que entran solas** | ✅ |
+| Tareas | Por expediente, con fecha y responsable; atrasadas destacadas | ✅ |
 | Documentos | Por expediente, categoría, revisado, compartido con el cliente, huella SHA-256, **registro de accesos** | ✅ datos · ⏳ almacenamiento e interfaz |
-| Finanzas | Honorarios, provisiones de fondos, suplidos y gastos, con IVA desglosado; cobrado / pendiente | ✅ datos · ⏳ interfaz |
+| Finanzas | Honorarios, provisiones de fondos, suplidos y gastos, con IVA desglosado; cobrado / pendiente | ✅ |
 | Solicitudes y derivaciones | Bandeja de revisión y derivaciones agrupadas por área | ✅ funcionando en local |
-| Oportunidades | Necesidades adicionales detectadas por la IA con la cita literal que las justifica | ✅ datos · ⏳ interfaz |
+| Oportunidades | Necesidades adicionales detectadas por la IA con la cita literal que las justifica | ✅ |
 
 ## 2. Portal del cliente
 
@@ -78,11 +78,16 @@ El cliente accede con su email (enlace de acceso, sin contraseñas que recordar)
 - Visibilidad por documento: por defecto **no** se comparte con el cliente.
 - Recomendado en producción: plan Pro (copias diarias) y doble factor en la cuenta del abogado.
 
+## Decisiones del 28-11-2026
+- Asistente: **web por texto primero**; la voz llega después (P6).
+- El asistente **puede mencionar** al cliente la necesidad adicional detectada, siempre con la fórmula neutra y tras la validación de la materia en el catálogo.
+- El portal **muestra los honorarios pendientes** y permite **pagarlos online**.
+
 ## 5. Fases
 
 | Fase | Entregable | Depende de |
 |---|---|---|
-| **P1** | Panel del abogado: dashboard, clientes, expedientes, agenda, tareas y finanzas | Despliegue en Supabase (bloqueado) |
+| **P1** ✅ | Panel del abogado: dashboard, clientes, expedientes, agenda, tareas y finanzas (probado en local) | Despliegue en Supabase (bloqueado) |
 | **P2** | Documentos seguros (almacenamiento, compartir, registro de accesos) | P1 |
 | **P3** | Portal del cliente: login, expedientes, documentos, mensajes y reserva de citas | P1-P2 |
 | **P4** | Reserva y pago (Cal.com + Stripe) conectados a la agenda | Cuentas de Stripe y Cal.com |

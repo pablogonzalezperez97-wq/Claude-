@@ -20,7 +20,7 @@ const sufijo = crypto.randomUUID().slice(0, 6);
 const solicitud = {
   tipo: "fisica", nombre: "Lucía Prueba", email: `lucia.${sufijo}@prueba.test`, materia: "mer_constitucion",
   descripcion: "Quiero constituir una sociedad limitada con dos socios.", acepta_privacidad: true, acepta_condiciones: true,
-  contrapartes: [{ nombre: `Contraparte Única ${sufijo}` }],
+  contrapartes: [{ nombre: crypto.randomUUID().replace(/-/g, "") }],  // nombre único: evita conflictos con ejecuciones previas
 };
 
 Deno.test({ name: "flujo completo formulario → panel", ignore: !sql, sanitizeResources: false, sanitizeOps: false, fn: async () => {

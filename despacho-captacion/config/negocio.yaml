@@ -52,3 +52,12 @@ derivaciones:
   modo: manual                    # el abogado reenvía a mano; no se remite al cliente a ningún tercero
   agrupar_por: area               # penal, familia, civil...
   incluir_recursos_emergencia: true   # turno de guardia, 016, 112
+
+asistente_ia:
+  canal_inicial: web_texto          # decisión 28-11-2026: web por texto primero; voz (P6) después; teléfono (P7) opcional
+  mencion_oportunidades_al_cliente: neutra   # "en la consulta el abogado podrá revisar también…" (sin precios ni presión)
+  oportunidades_requieren_validacion: true
+
+portal_cliente:
+  muestra_honorarios_pendientes: true
+  pago_online: true                 # Stripe (P4)

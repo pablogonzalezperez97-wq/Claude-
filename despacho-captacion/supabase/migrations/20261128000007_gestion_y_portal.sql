@@ -311,7 +311,7 @@ create policy cliente_se_ve on clientes for select to authenticated using (user_
 -- El cliente no debe leer las notas internas aunque vea la fila del expediente.
 revoke select on expedientes from authenticated;
 grant select (id, numero, cliente_id, lead_id, materia_codigo, titulo, contraparte, organo, procedimiento, estado,
-              responsable, honorarios_pactados, hoja_encargo_firmada, abierto_en, cerrado_en, creado_en, actualizado_en)
+              responsable, honorarios_pactados, hoja_encargo_firmada, pbc_diligencia_ok, abierto_en, cerrado_en, creado_en, actualizado_en)
   on expedientes to authenticated;
 -- El abogado lee las notas internas mediante esta función (comprueba es_abogado()).
 create or replace function notas_expediente(p_expediente uuid)
