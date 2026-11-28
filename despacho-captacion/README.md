@@ -7,6 +7,7 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 1. [Benchmark de modelos análogos](docs/01-benchmark-modelos-analogos.md): qué hacen Doctoralia, Booksy, TaxDown, Clio Grow, los chatbots inmobiliarios y las plataformas de psicología online, y qué extrapolamos.
 2. [Estructura de producción](docs/02-estructura-produccion.md): módulos, flujo, modelo de datos, scoring, salvaguardas de la IA, fases y criterios de aceptación.
 3. [Requerimientos por tu parte](docs/03-requerimientos-cliente.md): checklist priorizado de decisiones, contenidos y cuentas.
+4. [Plataforma completa](docs/04-plataforma-completa.md): panel del abogado, portal del cliente, asistente de voz con cross-selling y fases P1-P7.
 
 ## Estado
 
@@ -19,7 +20,9 @@ Sistema para un despacho de abogado generalista, con práctica centrada en derec
 - [x] F2 · Formulario de consulta (`web/consulta.html`) y bandeja de revisión (`web/panel.html`)
 - [x] F2 · Edge Functions `triaje` (pública) y `panel` (abogado), con pruebas unitarias, de integración y en navegador
 - [x] F2 · Derivaciones manuales agrupadas por área, plazo de respuesta de 2 días hábiles y recursos de emergencia
-- [ ] F3 · Reserva (Cal.com) y pago (Stripe)
+- [x] P1 (datos) · Expedientes, agenda, tareas, finanzas, documentos, portal del cliente y oportunidades IA, con pruebas de aislamiento
+- [ ] P1 · Interfaz del panel del abogado
+- [ ] F3/P4 · Reserva (Cal.com) y pago (Stripe)
 
 ## Estructura
 
